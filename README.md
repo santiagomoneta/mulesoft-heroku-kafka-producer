@@ -73,6 +73,7 @@ Setup the Mule application and connector
 
 
 **Mental Notes:**
+
 -- Recommendation: Set the "*clear application data*" to "always" (from the running config)
 
 -- There is no consumer flow configured but the kafka consumer config is already on global.xml in case you want to test. Remember that in this case you need to create the consumer group first in heroku, this can be done only by CLI with the command `heroku kafka:consumer-groups:create consumerGroupName --app HerokuAppName`
