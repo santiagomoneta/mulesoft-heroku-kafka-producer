@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:compression="http://www.mulesoft.org/schema/mule/compression"
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:core="http://www.mulesoft.org/schema/mule/core"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd">
+
+	
+	<flow name="KafkaFlow"
+		doc:id="b76502df-aa7b-4c1b-b7bb-bd55ef042d01">
+		<http:listener path="/kafka" doc:name="GET: /kafka"
+			doc:id="cea8bbd4-7486-496e-8a13-09d2cd377b44"
+			config-ref="HTTP_Listener_config" />
+		<file:read doc:name="Load the file with the JSON messages"
+			doc:id="4b9130db-a46c-4ccf-ad32-ccf14d88aaaf"
+			config-ref="File_Config" path="${file.name}" />
+		<logger level="INFO" doc:name="File Loaded" doc:id="11937e4c-60af-45f9-9b48-b043bf35451d" message="File Loaded"/>
+		<batch:job jobName="batch-job"
+			doc:id="0481d791-0293-4927-bd65-2a602c17d34c" blockSize="1000">
+			<batch:process-records>
+				<batch:step name="batch-step"
+					doc:id="b80219ff-cfe5-48d8-afc8-41b05a469116" acceptPolicy="ALL">
+					<ee:transform
+						doc:name="Transform each JSON message into a smaller one"
+						doc:id="0230f086-b053-4dcc-b1e2-1898662f814e">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	user: payload.user_id,
+	order: payload.order_id
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator"
+						doc:id="efbfd171-0d1f-4207-adbf-e2dd81a33e3d" streaming="true">
+						<foreach doc:name="For Each"
+							doc:id="0e8dce6b-56c2-430f-ad77-f114968bdfc7">
+							<async doc:name="Async"
+								doc:id="f8183261-8c56-485e-8a6b-b73396260271">
+								<kafka:producer
+									doc:name="produce message to Kafka broker"
+									doc:id="667c5e3a-3d07-4500-8b45-314d91f70002"
+									config-ref="Apache_Kafka_Producer_configuration"
+									topic="${kafka.topic}" key="#[now()]" />
+							</async>
+						</foreach>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete>
+				<logger level="INFO" doc:name="Batch complete"
+					doc:id="5dd39da4-b4b9-4498-98cc-ca3e4ca0b86c"
+					message="Batch complete" />
+			</batch:on-complete>
+		</batch:job>
+		<ee:transform
+			doc:name="Transform batch job summary into JSON"
+			doc:id="79461cae-b6ad-4970-b53d-f297c0f37462">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger doc:name="Done" message="Done" level="INFO" />
+	</flow>
+</mule>

@@ -1,0 +1,4 @@
+/target/*
+*.jks
+/target/
+/bin/

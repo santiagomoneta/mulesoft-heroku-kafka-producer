@@ -9,10 +9,10 @@ This is a simple mule application that can be use to send messages to Heroku Kaf
 
 ***How to use this application?***
 
-**STEP 1:** 
---
+**STEP 1:**  
+---
 Setup Heroku Kafka  (using the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install) on a Mac)
-
+-
 -- Create an application a Heroku from the terminal:
 `heroku create myAppName --team=myTeamName`
 
@@ -56,7 +56,7 @@ f- Finally, convert the pkcs12 file format in jsk:
 **STEP 2:**
 ---
 Setup the Mule application and connector
-  
+  - 
 -- Download or Clone this repo
 -- Import the project in Anypoint Studio 7.x
 
@@ -76,7 +76,7 @@ Setup the Mule application and connector
 -- Recommendation: Set the "*clear application data*" to "always" (from the running config)
 -- There is no consumer flow configured but the kafka consumer config is already on global.xml in case you want to test. Remember that in this case you need to create the consumer group first in heroku, this can be done only by CLI with the command `heroku kafka:consumer-groups:create consumerGroupName --app HerokuAppName`
 -- If you have to keep messages in order you need to do one partition per topic
-
+-- If you need to monitor the cluster and check for consumer lag more closely, there are tools online.. some work others dont with heroku. Im trying to document how to setup each one on  [Mulesoft, Kafka & Heroku](https://salesforce.quip.com/qP1AAKzPbChN)
 
 STEP 4:
 Test!
@@ -87,19 +87,19 @@ Test!
 
 ![1300 messages per second :) ](https://i.imgur.com/Cb0Dyrz.jpg)
 ---
+In the Quip document [Mulesoft, Kafka & Heroku](https://salesforce.quip.com/qP1AAKzPbChN) I document my own findings and use that a a tweaking guide, feel free to collaborate. 
 
 Thanks for your interest and please feel free to provide feedback, update the app to your needs and more!
 For more information, please take a look at these Quip documents:
 
----
-Monitoring:
-For now, I found only 2 apps that can connect to a heroku kafka cluster with no issues:
+Kudos to Gulal and Ashwani for the support and fedback!
 
- - [Conduktor](https://www.conduktor.io/)
- - [Kafka Tool](https://www.kafkatool.com/)
+-- [Mulesoft, Kafka & Heroku](https://salesforce.quip.com/qP1AAKzPbChN) by Santiago Moneta
 
+-- [Heroku Kafka: User Guide](https://salesforce.quip.com/WrRRAygxUyt0) by Ashwani Kumar Tripathi
 
+-- [Kafka vs AnypointMQ vs RabbitMQ](https://quip.com/08CZA0FamR6U#ACaACANZsp5) by Gulal Kumar
 
 Thanks, 
-Santiago
+Santiago Moneta
 

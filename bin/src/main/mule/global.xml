@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="77d73186-8185-470f-90a6-9a4f7bf2b0c6" file="config.yaml" />
+	<file:config name="File_Config" doc:name="File Config"
+		doc:id="43ac0766-f57a-4556-9f97-aa73547668d5">
+		<file:connection
+			workingDir="${mule.home}/apps/${app.name}/" />
+	</file:config>
+	<http:listener-config name="HTTP_Listener_config"
+		doc:name="HTTP Listener config"
+		doc:id="625d88bd-c911-45d7-b87a-580db2af737e">
+		<http:listener-connection host="0.0.0.0"
+			port="8081" />
+	</http:listener-config>
+	<kafka:kafka-consumer-config
+		name="Apache_Kafka_Consumer_config"
+		doc:name="Apache Kafka Consumer configuration"
+		doc:id="9eda90f3-1922-4f83-ba18-6c1b6fe00a4b">
+		<kafka:ssl-kafka-consumer-connection
+			bootstrapServers="${kafka.broker}"
+			keyStoreType="${kafka.keystore.type}"
+			keyStorePassword="${kafka.keystore.password}"
+			keyStoreLocation="${kafka.keystore.filepath}"
+			trustStoreType="${kafka.truststore.type}"
+			trustStorePassword="${kafka.truststore.password}"
+			trustStoreLocation="${kafka.truststore.filepath}"
+			consumerPartitions="30" groupId="${kafka.consumerGroup}">
+			<kafka:additional-properties>
+				<kafka:additional-property
+					key="ssl.endpoint.identification.algorithm" value='#[""]' />
+			</kafka:additional-properties>
+		</kafka:ssl-kafka-consumer-connection>
+	</kafka:kafka-consumer-config>
+	<kafka:kafka-producer-config
+		name="Apache_Kafka_Producer_configuration"
+		doc:name="Apache Kafka Producer configuration"
+		doc:id="708df906-5cbb-443f-bbd6-8cdadb63350e">
+		<kafka:ssl-kafka-producer-connection
+			bootstrapServers="${kafka.broker}"
+			keyStorePassword="${kafka.keystore.password}"
+			keyStoreLocation="${kafka.keystore.filepath}"
+			trustStorePassword="${kafka.truststore.password}"
+			trustStoreLocation="${kafka.truststore.filepath}"
+			keyStoreType="${kafka.keystore.type}"
+			trustStoreType="${kafka.truststore.type}">
+			<kafka:additional-properties>
+				<kafka:additional-property
+					key="ssl.endpoint.identification.algorithm" value='#[""]' />
+				<kafka:additional-property
+					key="batch.size" value="${kafka.param.batchsize}" />
+				<kafka:additional-property
+					key="request.timeout.ms" value="${kafka.param.requesttimeoutms}" />
+				<kafka:additional-property key="linger.ms"
+					value="${kafka.param.lingerms}" />
+				<kafka:additional-property key="ack"
+					value="${kafka.param.ack}" />
+			</kafka:additional-properties>
+		</kafka:ssl-kafka-producer-connection>
+	</kafka:kafka-producer-config>
+</mule>
