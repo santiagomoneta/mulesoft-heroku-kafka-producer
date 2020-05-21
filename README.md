@@ -78,7 +78,7 @@ Setup the Mule application and connector
 -- If you have to keep messages in order you need to do one partition per topic
 
 
-STEP 4:
+STEP 3:
 Test!
   - 
 -- Deploy
